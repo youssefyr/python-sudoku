@@ -240,14 +240,14 @@ def draw_menu(selected_option):
     title_font = pygame.font.SysFont("comicsans", 64)
     title_text = title_font.render("Sudoku", True, BLACK)
     title_x = screen_width // 2 - title_text.get_width() // 2
-    title_y = screen_height // 2 - title_text.get_height() // 2 - 140  # Adjust Y position as needed
+    title_y = screen_height // 2 - title_text.get_height() // 2 - (screen_height * 0.27)  # Adjust Y position as needed
     Window.blit(title_text, (title_x, title_y))
 
     for i, option in enumerate(menu_options):
         color = BLACK if i == selected_option else (100, 100, 100)
         text = font.render(option, True, color)
         x = screen_width // 2 - text.get_width() // 2
-        y = screen_height // 2 - text.get_height() // 2 + i * 50 + 50  # Adjust Y position as needed
+        y = screen_height // 2 - text.get_height() // 2 + i * (text.get_height() + 10)
         Window.blit(text, (x, y))
     pygame.display.update()
 
@@ -273,8 +273,28 @@ def main_menu():
                         sys.exit()
                     if menu_options[selected_option] == 'Start Game':
                         startgame()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for i, option in enumerate(menu_options):
+                    x = screen_width // 2 - font.size(option)[0] // 2
+                    y = screen_height // 2 - font.size(option)[1] // 2 + i * 50 + 50
+                    if x <= mouse_pos[0] <= x + font.size(option)[0] and y <= mouse_pos[1] <= y + font.size(option)[1]:
+                        selected_option = i
+                        if menu_options[selected_option] == 'Exit':
+                            running = False
+                            pygame.quit()
+                            sys.exit()
+                        if menu_options[selected_option] == 'Start Game':
+                            startgame()
+            if event.type == pygame.MOUSEMOTION:
+                mouse_pos = pygame.mouse.get_pos()
+                for i, option in enumerate(menu_options):
+                    x = screen_width // 2 - font.size(option)[0] // 2
+                    y = screen_height // 2 - font.size(option)[1] // 2 + i * 50 + 50
+                    if x <= mouse_pos[0] <= x + font.size(option)[0] and y <= mouse_pos[1] <= y + font.size(option)[1]:
+                        selected_option = i
 
-        draw_menu(selected_option)
+                draw_menu(selected_option)
 
 if __name__ == "__main__":
     main_menu()
