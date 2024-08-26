@@ -4,7 +4,7 @@
 ## To-Do List
 
 - [ ] Random grid numbers
-- [ ] Game menu.
+- [-] Game menu.
 - [ ] Hint System.
 - [ ] Histroy and Timer per game.
 
