@@ -38,6 +38,18 @@ def cord(pos):
     global z
     z = pos[1]//diff
  
+def mouse_click_inside_grid(pos):
+    grid_start_x = 0
+    grid_start_y = int(screen_height * 0.05)
+    grid_end_x = 9 * diff
+    grid_end_y = 9 * diff + grid_start_y
+    
+    if grid_start_x <= pos[0] <= grid_end_x and grid_start_y <= pos[1] <= grid_end_y:
+        return True
+    else:
+        return False
+
+
 def highlightbox():
     for k in range(2):
         pygame.draw.line(Window, BLACK, (x * diff, (z + k)*diff + int(screen_height * 0.05)), (x * diff + diff, (z + k)*diff + int(screen_height * 0.05)), 3)
@@ -111,7 +123,7 @@ def solvegame(defaultgrid, i, j):
                 return True
             else:
                 defaultgrid[i][j]= 0
-            Window.fill((0,0,0))
+            Window.fill(WHITE)
          
             drawlines()
             highlightbox()
@@ -122,6 +134,13 @@ def solvegame(defaultgrid, i, j):
 def gameresult():
     text1 = font.render("game finished", 1, BLACK)
     Window.blit(text1, (20, 570)) 
+
+def save_history(seconds, grid):
+    with open('./SudokuHistory.txt', 'a+') as f:
+        f.write(f'; {seconds}\n')
+        for row in grid:
+            f.write(' '.join(map(str, row)) + '\n')
+
 
 def startgame():
     global flag,flag1,flag2,rs,value,defaultgrid,x,z,error
@@ -155,7 +174,10 @@ def startgame():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 flag1 = 1
                 pos = pygame.mouse.get_pos()
-                cord(pos)
+                if mouse_click_inside_grid(pos):
+                    cord(pos)
+                else:
+                    pass
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     if x > 0:
@@ -242,7 +264,8 @@ def startgame():
         if error == 1:
             raiseerror() 
         if rs == 1:
-            gameresult()       
+            gameresult()
+            save_history(seconds,defaultgrid)       
         drawlines() 
         if flag1 == 1:
             highlightbox()      
@@ -250,8 +273,105 @@ def startgame():
         Window.blit(timer_surface, timer_rect)
         pygame.display.update() 
 
+
+def draw_instructions():
+    ins_flag = True
+    while ins_flag:
+        Window.fill(WHITE)
+        text1 = font.render("Instructions", 1, BLACK)
+        Window.blit(text1, (int(screen_width * 0.05), int(screen_height * 0.05)))
+        text2 = font1.render("1. Use arrow keys to move around the grid", 1, BLACK)
+        Window.blit(text2, (int(screen_width * 0.05), int(screen_height * 0.15)))
+        text3 = font1.render("2. Use numbers 1-9 to fill in the grid", 1, BLACK)
+        Window.blit(text3, (int(screen_width * 0.05), int(screen_height * 0.2)))
+        text4 = font1.render("3. Press 'Enter' to check the solution", 1, BLACK)
+        Window.blit(text4, (int(screen_width * 0.05), int(screen_height * 0.25)))
+        text5 = font1.render("4. Press 'R' to reset the grid", 1, BLACK)
+        Window.blit(text5, (int(screen_width * 0.05), int(screen_height * 0.3)))
+        text6 = font1.render("5. Press 'D' to reset the grid to default", 1, BLACK)
+        Window.blit(text6, (int(screen_width * 0.05), int(screen_height * 0.35)))
+        text7 = font1.render("6. Press 'ESC' to go back to the main menu", 1, BLACK)
+        Window.blit(text7, (int(screen_width * 0.05), int(screen_height * 0.4)))
+        clock.tick(60)
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                ins_flag = False
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.K_ESCAPE or event.type == pygame.KEYDOWN:
+                ins_flag = False
+
+def draw_history():
+    try:
+        with open('./SudokuHistory.txt', 'r') as f:
+            history = f.readlines()
+    except FileNotFoundError:
+        history = []
+    
+    scroll_y = 0
+    scroll_speed = 5
+    scroll_direction = 0
+    
+    while True:
+        Window.fill(WHITE)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return
+                elif event.key == pygame.K_UP:
+                    scroll_direction = -1
+                elif event.key == pygame.K_DOWN:
+                    scroll_direction = 1
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                    scroll_direction = 0
+        
+        if scroll_direction != 0:
+            scroll_y += scroll_speed * scroll_direction
+            if scroll_y > 0:
+                scroll_y = 0
+            elif scroll_y < -((len(history) + 1) * (font1.get_height() + 10) - screen_height):
+                scroll_y = -((len(history) + 1) * (font1.get_height() + 10) - screen_height)
+        
+        if len(history) == 0:
+            text = font1.render("No History", True, BLACK)
+            text_x = int(screen_width * 0.05)
+            text_y = int(screen_height * 0.05) + scroll_y
+            Window.blit(text, (text_x, text_y))
+        else:
+            for i, line in enumerate(history):
+                if line.startswith(';'):
+                    time_text = line.strip().replace(';', '')
+                    minutes = int(time_text) // 60
+                    seconds = int(time_text) % 60
+                    if minutes <= 120:
+                        time_text = f'{minutes}m {seconds}s'
+                    else:
+                        time_text = '120+'
+                    text = font1.render(f'Time: {time_text}', True, BLACK)
+                else:
+                    grid_text = line.strip().replace(' ', '  ')
+                    text = font1.render(grid_text, True, BLACK)
+                
+                text_x = int(screen_width * 0.05)
+                text_y = int(screen_height * 0.05) + i * (text.get_height() + 10) + scroll_y
+                Window.blit(text, (text_x, text_y))
+        
+        exit_text = font1.render("Press ESC to exit", True, BLACK)
+        exit_x = int(screen_width * 0.95) - exit_text.get_width()
+        exit_y = screen_height - exit_text.get_height() - int(screen_height * 0.05)
+        Window.blit(exit_text, (exit_x, exit_y))
+        
+        pygame.display.update()
+        clock.tick(60)
+
 # Menu options
-menu_options = ['Start Game', 'Instructions', 'Exit']
+menu_options = ['Start Game', 'Instructions', 'History', 'Exit']
 selected_option = 0
 
 def draw_menu(selected_option):
@@ -292,11 +412,15 @@ def main_menu():
                         sys.exit()
                     if menu_options[selected_option] == 'Start Game':
                         startgame()
+                    if menu_options[selected_option] == 'Instructions':
+                        draw_instructions()
+                    if menu_options[selected_option] == 'History':
+                        draw_history()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 for i, option in enumerate(menu_options):
                     x = screen_width // 2 - font.size(option)[0] // 2
-                    y = screen_height // 2 - font.size(option)[1] // 2 + i * 50 + 50
+                    y = screen_height // 2 - font.size(option)[1] // 2 + i * 50 + int(screen_height * 0.05)
                     if x <= mouse_pos[0] <= x + font.size(option)[0] and y <= mouse_pos[1] <= y + font.size(option)[1]:
                         selected_option = i
                         if menu_options[selected_option] == 'Exit':
@@ -305,11 +429,15 @@ def main_menu():
                             sys.exit()
                         if menu_options[selected_option] == 'Start Game':
                             startgame()
+                        if menu_options[selected_option] == 'Instructions':
+                            draw_instructions()
+                        if menu_options[selected_option] == 'History':
+                            draw_history()
             if event.type == pygame.MOUSEMOTION:
                 mouse_pos = pygame.mouse.get_pos()
                 for i, option in enumerate(menu_options):
                     x = screen_width // 2 - font.size(option)[0] // 2
-                    y = screen_height // 2 - font.size(option)[1] // 2 + i * 50 + 50
+                    y = screen_height // 2 - font.size(option)[1] // 2 + i * 50 + int(screen_height * 0.05)
                     if x <= mouse_pos[0] <= x + font.size(option)[0] and y <= mouse_pos[1] <= y + font.size(option)[1]:
                         selected_option = i
 
