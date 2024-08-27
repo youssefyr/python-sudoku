@@ -5,7 +5,7 @@ pygame.font.init()
 
 screen_width, screen_height = 500, 600
 
-Window = pygame.display.set_mode((500, 600))
+Window = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Sudoku game project ")
 
@@ -128,12 +128,15 @@ def solvegame(defaultgrid, i, j):
             drawlines()
             highlightbox()
             pygame.display.update()
-            pygame.time.delay(50)   
+            pygame.time.delay(20)   
     return False 
 
 def gameresult():
-    text1 = font.render("game finished", 1, BLACK)
-    Window.blit(text1, (20, 570)) 
+    text1 = font1.render("Game finished, Returning to the menu in 5 Seconds", 1, BLACK)
+    text_width, text_height = text1.get_size()
+    text_x = int((screen_width - text_width) / 2)
+    text_y = int(screen_height * 0.95 - text_height)
+    Window.blit(text1, (text_x, text_y))
 
 def save_history(seconds, grid):
     with open('./SudokuHistory.txt', 'a+') as f:
@@ -179,6 +182,8 @@ def startgame():
                 else:
                     pass
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    flag = False
                 if event.key == pygame.K_LEFT:
                     if x > 0:
                         x -= 1
@@ -250,6 +255,21 @@ def startgame():
                 error = 1
             else:
                 rs = 1
+                save_history(seconds, defaultgrid)
+                gameresult()     
+                pygame.time.delay(5000)
+                flag = False  
+                defaultgrid  =[
+                            [0, 2, 6, 0, 0, 0, 8, 1, 0],
+                            [3, 0, 0, 7, 0, 8, 0, 0, 6],
+                            [4, 0, 0, 0, 5, 0, 0, 0, 7],
+                            [0, 5, 0, 1, 0, 7, 0, 9, 0],
+                            [0, 0, 3, 9, 0, 5, 1, 0, 0],
+                            [0, 4, 0, 3, 0, 2, 0, 5, 0],
+                            [1, 0, 0, 0, 3, 0, 0, 0, 2],
+                            [5, 0, 0, 2, 0, 4, 0, 0, 0],
+                            [0, 3, 8, 0, 0, 0, 4, 6, 0],
+                            ]
             flag2 = 0   
         if value != 0:           
             fillvalue(value)
@@ -263,10 +283,7 @@ def startgame():
         
         if error == 1:
             raiseerror() 
-        if rs == 1:
-            gameresult()
-            save_history(seconds,defaultgrid)       
-        drawlines() 
+        drawlines()
         if flag1 == 1:
             highlightbox()      
         clock.tick(60)
