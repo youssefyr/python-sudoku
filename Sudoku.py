@@ -1,5 +1,7 @@
 import pygame
+import numpy as np
 import sys
+import random
 
 pygame.font.init()
 
@@ -19,17 +21,55 @@ BLACK = (0, 0, 0)
 x = 0
 z = 0
 diff = 500 / 9
-defaultgrid =[
-    [0, 2, 6, 0, 0, 0, 8, 1, 0],
-    [3, 0, 0, 7, 0, 8, 0, 0, 6],
-    [4, 0, 0, 0, 5, 0, 0, 0, 7],
-    [0, 5, 0, 1, 0, 7, 0, 9, 0],
-    [0, 0, 3, 9, 0, 5, 1, 0, 0],
-    [0, 4, 0, 3, 0, 2, 0, 5, 0],
-    [1, 0, 0, 0, 3, 0, 0, 0, 2],
-    [5, 0, 0, 2, 0, 4, 0, 0, 0],
-    [0, 3, 8, 0, 0, 0, 4, 6, 0],
-]
+
+
+
+#create random numbers
+def generate_sudoku_grid(empty_cells=30):
+   
+
+    grid = np.zeros((9, 9), dtype=int)
+    def is_valid(row, col, num):
+        
+        return (
+            num not in grid[row]
+            and num not in grid[:, col]
+            and num not in grid[row // 3 * 3 : row // 3 * 3 + 3, col // 3 * 3 : col // 3 * 3 + 3]
+        )
+
+    def backtrack(row, col):
+
+        if row == 9:
+            return True
+        if col == 9:
+            return backtrack(row + 1, 0)
+
+        if grid[row][col] != 0:
+            return backtrack(row, col + 1)
+
+        for num in range(1, 10):
+            if is_valid(row, col, num):
+                grid[row][col] = num
+                if backtrack(row, col + 1):
+                    return True
+                grid[row][col] = 0
+        return False
+
+    if not backtrack(0, 0):
+        return None
+
+        
+    for _ in range(empty_cells):
+        row, col = random.randint(0, 8), random.randint(0, 8)
+        while grid[row][col] == 0:
+            row, col = random.randint(0, 8), random.randint(0, 8)
+        grid[row][col] = 0
+
+    return grid
+
+
+
+defaultgrid = generate_sudoku_grid(30)
 
 
 def cord(pos):
@@ -239,17 +279,7 @@ def startgame():
                     rs = 0
                     error = 0
                     flag2 = 0
-                    defaultgrid  =[
-    [0, 2, 6, 0, 0, 0, 8, 1, 0],
-    [3, 0, 0, 7, 0, 8, 0, 0, 6],
-    [4, 0, 0, 0, 5, 0, 0, 0, 7],
-    [0, 5, 0, 1, 0, 7, 0, 9, 0],
-    [0, 0, 3, 9, 0, 5, 1, 0, 0],
-    [0, 4, 0, 3, 0, 2, 0, 5, 0],
-    [1, 0, 0, 0, 3, 0, 0, 0, 2],
-    [5, 0, 0, 2, 0, 4, 0, 0, 0],
-    [0, 3, 8, 0, 0, 0, 4, 6, 0],
-]
+                    defaultgrid  = generate_sudoku_grid(30)
         if flag2 == 1:
             if solvegame(defaultgrid , 0, 0)== False:
                 error = 1
@@ -259,17 +289,7 @@ def startgame():
                 gameresult()     
                 pygame.time.delay(5000)
                 flag = False  
-                defaultgrid  =[
-                            [0, 2, 6, 0, 0, 0, 8, 1, 0],
-                            [3, 0, 0, 7, 0, 8, 0, 0, 6],
-                            [4, 0, 0, 0, 5, 0, 0, 0, 7],
-                            [0, 5, 0, 1, 0, 7, 0, 9, 0],
-                            [0, 0, 3, 9, 0, 5, 1, 0, 0],
-                            [0, 4, 0, 3, 0, 2, 0, 5, 0],
-                            [1, 0, 0, 0, 3, 0, 0, 0, 2],
-                            [5, 0, 0, 2, 0, 4, 0, 0, 0],
-                            [0, 3, 8, 0, 0, 0, 4, 6, 0],
-                            ]
+                defaultgrid  = generate_sudoku_grid(30)
             flag2 = 0   
         if value != 0:           
             fillvalue(value)

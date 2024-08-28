@@ -23,7 +23,7 @@ Enjoy solving puzzles in this Python Sudoku game!
 
 ## To-Do List
 
-- [ ] Random grid numbers
+- [X] Random grid numbers
 - [X] Game menu.
 - [X] Histroy and Timer per game.
 
@@ -37,7 +37,7 @@ To get started with the Python Sudoku game, follow these simple steps:
    ```
 2. Run the following command (keeping in mind that python is installed):
    ```bash
-   pip install pygame
+   pip install -r requirements.txt
    ```
 
 3. Run the game:
