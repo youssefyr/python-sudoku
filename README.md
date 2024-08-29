@@ -1,12 +1,12 @@
 # Python Sudoku Game Project
 
 ## Team Members
-Youssef Reda Muhammad Mahmoud
-Basel Nabil Mekky
-Abdelrahman Hazem
-Martin Amgad Saeed
-Ali Hesham Mohamed Mokhtar
-Ziad Ahmed Fathey
+Youssef Reda Muhammad Mahmoud <br>
+Basel Nabil Mekky <br>
+Abdelrahman Hazem <br>
+Martin Amgad Saeed <br>
+Ali Hesham Mohamed Mokhtar <br>
+Ziad Ahmed Fathey <br>
 
 ## Game Features
 
